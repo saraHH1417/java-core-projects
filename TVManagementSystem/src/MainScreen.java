@@ -9,8 +9,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,6 +16,7 @@ import java.util.Date;
 
 public class MainScreen extends JFrame {
 
+    private String filePath = System.getProperty("user.dir") + "/TV.txt";
     // Panel1: Subscriber
     JPanel subscriberPanel;
     JTextField subName;
@@ -184,7 +183,7 @@ public class MainScreen extends JFrame {
                     DisplaySportsChannels();
                     //make price changes
                 } else {
-
+                    channelsAreasSports.setText("");
                 }
             }
         });
@@ -195,7 +194,7 @@ public class MainScreen extends JFrame {
                 if (moviesCHKBX.isSelected()) {
                     DisplayMoviesChannels();
                 } else {
-
+                    channelsAreaMovies.setText("");
                 }
             }
         });
@@ -206,7 +205,7 @@ public class MainScreen extends JFrame {
                 if (docCHKBX.isSelected()) {
                     DisplayDocumentaryChannels();
                 } else {
-
+                    channelsAreaDoc.setText("");
                 }
             }
         });
@@ -217,7 +216,7 @@ public class MainScreen extends JFrame {
                 try {
                     GetSubscriberData();
                 } catch (Exception exception) {
-                    
+
                 }
             }
 
@@ -322,7 +321,7 @@ public class MainScreen extends JFrame {
         loadBTN.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                LoadDataFromDisk();
+                ArrayList<Subscription> k = LoadDataFromDisk();
             }
         });
 
@@ -448,7 +447,7 @@ public class MainScreen extends JFrame {
     }
 
     private void GetSubscriberData() throws ParseException {
-        Date currentDAte = new Date();
+        Date currentDate = new Date();
 
         // Subscriber Data
         subscriber = new Subscriber(
@@ -473,9 +472,10 @@ public class MainScreen extends JFrame {
                         cycle,
                         df.format(currentDate)
         );
-
+        System.out.println("sub " + subscription);
         installFeeLBL.setText("Installation Fee: " +
                                 subscription.getTotalFee() + " $");
+
         showPrice();
     }
 
@@ -519,7 +519,8 @@ public class MainScreen extends JFrame {
 
     private void SaveSubscriptionToDisk() {
         listToSAve.add(subscription);
-        file = new File(System.getProperty("user.dir"));
+        file = new File(filePath);
+        System.out.println(filePath);
 //        file = new File(Paths.get("./").toUri());
 
         try {
@@ -537,9 +538,9 @@ public class MainScreen extends JFrame {
         }
     }
 
-    private void LoadDataFromDisk() {
+    private ArrayList<Subscription> LoadDataFromDisk() {
         ArrayList<Subscription> subscriptionArrayList = new ArrayList<>();
-        file = new File(System.getProperty("user.dir"));
+        file = new File(filePath);
 
         try {
             InputStream inputStream = new FileInputStream(file);
@@ -557,8 +558,9 @@ public class MainScreen extends JFrame {
         }
 
         for (Subscription subscription1: subscriptionArrayList) {
-            DisplaySubscriptionInTable();
+            DisplaySubscriptionInTable(subscription1);
         }
+        return subscriptionArrayList;
     }
 
     private void DisplaySubscriptionInTable(Subscription subscription) {

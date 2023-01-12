@@ -1,6 +1,8 @@
 package src;
 
-public class Subscriber {
+import java.io.Serializable;
+
+public class Subscriber implements Serializable {
     private String fName;
     private String lName;
     private String city;
