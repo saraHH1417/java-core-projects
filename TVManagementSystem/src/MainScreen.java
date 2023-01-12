@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,8 +50,22 @@ public class MainScreen extends JFrame {
     JTextArea channelsAreaDoc;
     JPanel detailsPanel;
 
+    //Panel5: Check And Payments
+    JPanel feePanel;
+    JLabel installFeeLBL;
+    JLabel packageFeeLBL;
+    JLabel totalFeeLBL;
 
+    //Panel6: Table(Date of Subscription)
+    JTable table;
+    DefaultTableModel tableModel;
+    JPanel p6Panel;
 
+    // Panel 7: Action panel
+    JButton saveBTN;
+    JButton loadBTN;
+    JButton newBTN;
+    JPanel p7ActionPanel;
 
     public MainScreen() {
 
@@ -222,6 +237,82 @@ public class MainScreen extends JFrame {
         detailsPanel.add(channelsAreaMovies);
         detailsPanel.add(channelsAreaDoc);
 
+        /*************************************** Panel 5 ********************************/
+        feePanel = new JPanel();
+        feePanel.setBounds(645, 15, 200, 200);
+        feePanel.setLayout(new GridLayout(3,1));
+        Border blackLine5 = BorderFactory.createTitledBorder("Fee & Check");
+
+        installFeeLBL = new JLabel("Installation Fee");
+        packageFeeLBL = new JLabel("Package Fee: ");
+        totalFeeLBL = new JLabel("Total Amount to pay: ");
+
+        feePanel.add(installFeeLBL);
+        feePanel.add(packageFeeLBL);
+        feePanel.add(totalFeeLBL);
+
+        /*************************************** Panel 6 ********************************/
+        p6Panel = new JPanel();
+        p6Panel.setBounds(645, 230, 515, 500);
+        p6Panel.setLayout(new GridLayout(3, 1));
+
+        Border border6 = BorderFactory.createTitledBorder("Our Customers");
+        p6Panel.setBorder(border6);
+
+        // Table
+        // 1- table model
+        tableModel = new DefaultTableModel();
+
+        // 2- Columns
+        table = new JTable(tableModel);
+        tableModel.addColumn("First Name");
+        tableModel.addColumn("Last Name:");
+        tableModel.addColumn("Phone Number");
+        tableModel.addColumn("Start Cycle");
+        tableModel.addColumn("End Cycle");
+        tableModel.addColumn("Total Fee");
+
+        // 3 - Scroll pane
+        JScrollPane scrollPane = new JScrollPane(table);
+        p6Panel.add(scrollPane);
+
+        /************************************ PANEL 7 ********************************/
+        p7ActionPanel = new JPanel();
+        p7ActionPanel.setBounds(860, 15, 300, 200);
+        Border border7 = BorderFactory.createTitledBorder("Action Tab");
+        p7ActionPanel.setBorder(border7);
+        p7ActionPanel.setLayout(new GridLayout(4, 1));
+
+
+        saveBTN = new JButton("Save Subscription");
+        loadBTN = new JButton("Load Subscription");
+        newBTN = new JButton("New Subscription");
+
+        p7ActionPanel.add(newBTN);
+        p7ActionPanel.add(saveBTN);
+        p7ActionPanel.add(loadBTN);
+
+        saveBTN.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SaveSubscriptionToDisk();
+            }
+        });
+
+        newBTN.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NewSubscription();
+            }
+        });
+
+        loadBTN.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                LoadDataFromDisk();
+            }
+        });
+
 
         // Adding Panels To JFrame
         setLayout(null); // null layout for Jframe
@@ -229,6 +320,10 @@ public class MainScreen extends JFrame {
         add(cyclePanel);    // panel 2
         add(packagesPanel); // panel 3
         add(detailsPanel); // panel 4
+        add(feePanel); // panel 5
+        add(p6Panel); //panel 6
+        add(p7ActionPanel); // panel 7
+
     }
 
     /*************************************** METHODS *************************************/
@@ -246,9 +341,20 @@ public class MainScreen extends JFrame {
     private void GetSubscriberData() {
     }
 
+    private void SaveSubscriptionToDisk() {
+
+    }
+
+    private void NewSubscription() {
+
+    }
+
+    private void LoadDataFromDisk() {
+
+    }
     public static void main(String[] args) {
         MainScreen mainScreen = new MainScreen();
         mainScreen.setVisible(true);
-        mainScreen.setBounds(100,100,1000,800);
+        mainScreen.setBounds(20,10,1200,800);
     }
 }
