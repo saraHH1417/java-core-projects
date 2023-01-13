@@ -1,9 +1,14 @@
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -151,7 +156,7 @@ public class AccountFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                accNoTXT.setText("");
-               ownerLBL.setText("");
+               ownerTXT.setText("");
                citiesCMB.setSelectedIndex(0);
                maleRDB.setSelected(true);
                balanceTXT.setText("");
@@ -196,6 +201,118 @@ public class AccountFrame extends JFrame {
             }
         });
 
+        showBTN.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String s = "";
+                Iterator<Account> it = accountSet.iterator();
+                while (it.hasNext()) {
+                    s += it.next().toString() + "\n";
+                    JOptionPane.showMessageDialog(null, s);
+                }
+            }
+        });
+
+        depositBTN.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!newRec && amountTXT.getText().length() != 0) {
+
+                    // Adding Transaction to table
+                    Transaction t = new Transaction(acc, LocalDate.now(),
+                            'D', Double.parseDouble(amountTXT.getText()));
+                    DisplayTransactionsInTable(t);
+
+                    // Perform deposit fro account
+                    acc.deposit(Double.parseDouble(amountTXT.getText()));
+                    balanceTXT.setText(String.valueOf(acc.balance));
+                }
+            }
+        });
+
+        withdrawBTN.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!newRec && amountTXT.getText().length() != 0) {
+                    // Adding transaction to table
+                    Transaction t = new Transaction(
+                            acc, LocalDate.now(),
+                            'W', Double.parseDouble(amountTXT.getText())
+                    );
+
+                    DisplayTransactionsInTable(t);
+
+
+                    // perform withdraw on account
+                    acc.withdraw(Double.parseDouble(amountTXT.getText()));
+                    balanceTXT.setText(String.valueOf(acc.balance));
+
+                }
+            }
+        });
+
+
+        accountsLST.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                acc = x = accountsLST.getSelectedValue();
+
+                accNoTXT.setText(String.valueOf(acc.accNo));
+                ownerTXT.setText(acc.owner);
+                citiesCMB.setSelectedItem(acc.city);
+
+                if (acc.gender == 'M') maleRDB.setSelected(true);
+                else femaleRDB.setSelected(true);
+
+                balanceTXT.setText(String.valueOf(acc.balance));
+                amountTXT.setEnabled(true);
+                depositBTN.setEnabled(true);
+                newRec = false;
+
+                // Clear Table
+                for (int i = tableModel.getRowCount() - 1; i >=0; i--) {
+                    tableModel.removeRow(i);
+                }
+
+                // Get Transactions to selected Account
+                SearchTransactionList(acc.accNo);
+            }
+        });
+    }
+
+    private void SearchTransactionList(int accNo) {
+        List<Transaction> filteredList = new ArrayList<>();
+
+        for (Transaction t: transList) {
+            if (t.getAccount().accNo == accNo) {
+                filteredList.add(t);
+            }
+        }
+
+        // Display the filtered list
+        for (int i =0 ; i < filteredList.size(); i++) {
+            // Displaying Data into table
+            tableModel.addRow(new Object[]{
+                    filteredList.get(i).getTrsNo(),
+                    filteredList.get(i).getDate(),
+                    filteredList.get(i).getOperation(),
+                    filteredList.get(i).getAmount()
+            });
+        }
+    }
+
+
+    private void DisplayTransactionsInTable(Transaction transaction) {
+        // Displaying data into table
+        tableModel.addRow(new Object[]{
+                transaction.getTrsNo(),
+                transaction.getDate(),
+                transaction.getOperation(),
+                transaction.getAmount()
+        });
+
+        // Adding object to arraylist
+        transList.add(transaction);
     }
 
     public static void main(String[] args) {
