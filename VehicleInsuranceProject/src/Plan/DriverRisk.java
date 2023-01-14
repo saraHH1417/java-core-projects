@@ -2,7 +2,7 @@ package src.Plan;
 
 public class DriverRisk extends Risk{
 
-    public String[] getDriverRisksCovered = {"Driver Damage"};
+    public String[] driverRisksCovered = {"Driver Damage"};
 
     @Override
     public float getPremium() {

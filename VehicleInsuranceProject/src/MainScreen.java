@@ -1,15 +1,18 @@
 package src;
 
-import jdk.dynalink.linker.support.SimpleLinkRequest;
+import src.Plan.*;
 import src.Policy.Customer;
+import src.Policy.Policy;
+import src.Policy.Vehicle;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
 
@@ -85,10 +88,15 @@ public class MainScreen extends JFrame {
     boolean cond3;
 
     // Panel 11
-    JTextArea settlementAr;
+    JTextArea settlementArea;
     float totalPremium = 0f;
     float totalCoverage = 0f;
     float totalCeiling = 0f;
+
+    // PAnel 11
+    JTextArea settlementArea2;
+
+
 
     public MainScreen() {
         CustomizePanel1();
@@ -102,6 +110,7 @@ public class MainScreen extends JFrame {
         CustomizePanel9();
         CustomizePanel10();
         CustomizePanel11();
+        CustomizePanel12();
     }
 
     private void CustomizePanel1() {
@@ -586,18 +595,215 @@ public class MainScreen extends JFrame {
         p11.setBounds(1275, 15, 250, 230);
         p11.setLayout(new GridLayout(2,1));
 
-        settlementAr = new JTextArea();
-        settlementAr.setOpaque(false);
+        settlementArea = new JTextArea();
+        settlementArea.setOpaque(false);
 
         // Increasing the size of jtextArea
-        Font font = settlementAr.getFont();
+        Font font = settlementArea.getFont();
         float size = font.getSize() + 4.0f;
-        settlementAr.setFont(font.deriveFont(size));
+        settlementArea.setFont(font.deriveFont(size));
 
-        p11.add(settlementAr);
+        p11.add(settlementArea);
         add(p11);
     }
+
+    private void CustomizePanel12() {
+        TitledBorder titledBorder = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                "Settlements",
+                TitledBorder.CENTER,
+                TitledBorder.DEFAULT_POSITION,
+                myFont,
+                myColor);
+
+        JPanel p12 = new JPanel();
+        p12.setBorder(titledBorder);
+        p12.setBounds(1275, 250,250,500);
+        p12.setLayout(new GridLayout());
+
+
+        settlementArea2 = new JTextArea();
+        settlementArea2.setOpaque(false);
+
+        p12.add(settlementArea2);
+
+        Font font = settlementArea2.getFont();
+        float size = font.getSize();
+
+        add(p12);
+
+    }
+
+    /************************************* Methods ********************************/
+    /*****************************************************************************/
+    // Get Customer Data
+    public Customer getCustomerData() throws ParseException {
+        Customer customer = new Customer(
+                subFName.getText(),
+                subLName.getText(),
+                subCity.getText(),
+                Integer.parseInt(subPhone.getText()),
+                getPolicyData()
+        );
+        return customer;
+    }
+
+    // Get Vehicle Data
+    public Vehicle getVehicleData() throws ParseException {
+        Vehicle vehicle = new Vehicle(
+                Integer.parseInt(plateNb.getText()),
+                Integer.parseInt(model.getText()),
+                manufacturer.getText(),
+                Integer.parseInt(estimated.getText()),
+                getDamageState()
+        );
+        return vehicle;
+    }
+
+    // Get Policy data
+    public Policy getPolicyData() throws ParseException {
+        currentDate = new Date();
+        LocalDate now = LocalDate.now();
+        Policy policy = new Policy(
+            getVehicleData(),
+            coveredRisksList,
+            premiumRisksList,
+            coverageRisksList,
+            ceilingRiskList,
+            validityYEAR,
+            now
+        );
+        return policy;
+    }
+
+    // Get Damage Data
+    public int getDamageState() {
+        if (damageRadio1.isSelected()) {
+            return 1;
+        } else if(damageRadio2.isSelected()) {
+            return 2;
+        } else if(damageRadio3.isSelected()) {
+            return 3;
+        } else {
+            return 0;
+        }
+
+    }
+
+    // Get Plan Details
+    public void getRisksCoveredByPlan() {
+        AllRisk allRisk = new AllRisk();
+        ObligatoryRisk obligatoryRisk = new ObligatoryRisk();
+        allRiskCHKBX.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dDamageCHKBX.setEnabled(false);
+                vDamageCHKBX.setEnabled(false);
+                assistCHKBX.setEnabled(false);
+                obligatoryCHKBX.setEnabled(false);
+
+                // Adding risk details to an arrray
+                for (int i =0; i < allRisk.allRisksCovered.length;i++) {
+                    coveredRisksList.add(allRisk.allRisksCovered[i]);
+                }
+
+                premiumRisksList.add(allRisk.getPremium());
+                coverageRisksList.add(allRisk.getCoverage());
+                ceilingRiskList.add(allRisk.getCeiling());
+
+            }
+        });
+
+        obligatoryCHKBX.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                coveredRisksList.add(obligatoryRisk.obligatoryRiskCovered[0]);
+                premiumRisksList.add(obligatoryRisk.getPremium());
+                coverageRisksList.add(obligatoryRisk.getCoverage());
+                ceilingRiskList.add(obligatoryRisk.getCeiling());
+            }
+        });
+
+        vDamageCHKBX.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                VehicleRisk vehicleRisk = new VehicleRisk();
+
+                // Adding Risk details to arrays
+                coveredRisksList.add(vehicleRisk.vehicleRisksCovered[0]);
+                premiumRisksList.add(vehicleRisk.getPremium());
+                coverageRisksList.add(vehicleRisk.getCoverage());
+                ceilingRiskList.add(vehicleRisk.getCeiling());
+            }
+        });
+
+        dDamageCHKBX.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DriverRisk driverRisk = new DriverRisk();
+
+                coveredRisksList.add(driverRisk.driverRisksCovered[0]);
+                premiumRisksList.add(driverRisk.getPremium());
+                coverageRisksList.add(driverRisk.getCeiling());
+                ceilingRiskList.add(driverRisk.getCeiling());
+            }
+        });
+
+        assistCHKBX.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AssistanceRisk assistanceRisk = new AssistanceRisk();
+
+                // Adding risk details to an array
+                for (int i = 0; i < assistanceRisk.assistanceRisksCovered.length; i++) {
+                    coveredRisksList.add(assistanceRisk.assistanceRisksCovered[i]);
+                }
+
+                premiumRisksList.add(assistanceRisk.getPremium());
+                coverageRisksList.add(assistanceRisk.getCoverage());
+                ceilingRiskList.add(assistanceRisk.getCeiling());
+            }
+        });
+    }
+
     private void GetRisksCoveredByPlan() {
+    }
+
+    // Resetting fields to empty
+    private void NewCustomer() {
+        coveredRisksList.clear();
+        coveredRisksList.clear();
+        premiumRisksList.clear();
+        ceilingRiskList.clear();
+        cond1 = false;
+        cond2 = false;
+        cond3 = false;
+
+        // Set text fields to empty
+        subFName.setText("");
+        subLName.setText("");
+        subCity.setText("");
+        subPhone.setText("");
+        plateNb.setText("");
+        model.setText("");
+        manufacturer.setText("");
+        estimated.setText("");
+
+        // set radio button selection to none
+        G1.clearSelection();
+        G2.clearSelection();
+
+        // Reset checkbox
+        obligatoryCHKBX.setSelected(false);
+        allRiskCHKBX.setSelected(false);
+        vDamageCHKBX.setSelected(false);
+        dDamageCHKBX.setSelected(false);
+        assistCHKBX.setSelected(false);
+
+        dDamageCHKBX.setEnabled(true);
+        vDamageCHKBX.setEnabled(true);
+        assistCHKBX.setEnabled(true);
+        obligatoryCHKBX.setEnabled(true);
     }
 
     public static void main(String[] args) {

@@ -11,10 +11,11 @@ public class Customer implements Serializable {
 
     }
 
-    public Customer(String fname, String lname, String city, Policy policy) {
+    public Customer(String fname, String lname, String city, int phone, Policy policy) {
         this.fname = fname;
         this.lname = lname;
         this.city = city;
+        this.c_phone = phone;
         this.policy  = policy;
     }
 
