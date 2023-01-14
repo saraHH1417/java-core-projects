@@ -10,6 +10,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -18,6 +20,7 @@ import java.util.List;
 
 public class MainScreen extends JFrame {
 
+    private static final Path filePath = Path.of(System.getProperty("user.dir") + "insurance.txt");
     // Customization
     Font myFont = new Font("SansSerif", Font.BOLD, 20);
     Color myColor = Color.BLUE;
@@ -769,6 +772,54 @@ public class MainScreen extends JFrame {
     private void GetRisksCoveredByPlan() {
     }
 
+    // Save Data to disk
+    public void SaveCustomerMapToDisk() throws IOException, ClassNotFoundException, ParseException {
+        File file = new File(filePath.toUri());
+        int platenumr = Integer.parseInt(plateNb.getText());
+
+        if (!file.exists()) {
+            System.out.println("Not Existed");
+            file.createNewFile();
+            saveCustomerMapToNewFile(platenumr, file);
+        } else {
+            TreeMap<Integer, Customer> newMapToSave = new TreeMap<>();
+            InputStream is = new FileInputStream(file);
+            ObjectInputStream objectInputStream = new ObjectInputStream(is);
+
+            TreeMap<Integer, Customer> mapInFile = (TreeMap<Integer, Customer>)  objectInputStream.readObject();
+            objectInputStream.close();
+            is.close();
+            newMapToSave.putAll(mapInFile);
+//            for (Map.Entry<Integer, Customer> m: mapInFile.entrySet()) {
+//                newMapToSave.put(m.getKey(), m.getValue());
+//            }
+
+            // Updating the map: Adding new customer to map
+            newMapToSave.put(platenumr, getCustomerData());
+
+            // Saving the updates to file
+            OutputStream outputStream = new FileOutputStream(file);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+            objectOutputStream.writeObject(newMapToSave);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+            outputStream.close();
+        }
+    }
+
+    private void saveCustomerMapToNewFile(int platenmbr, File file) throws ParseException, IOException {
+        TreeMap<Integer, Customer> newMapToSave = new TreeMap<>();
+
+        // Adding new customer to map
+        newMapToSave.put(platenmbr, getCustomerData());
+        OutputStream os = new FileOutputStream(file);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(os);
+        objectOutputStream.writeObject(newMapToSave);
+        objectOutputStream.flush();
+        objectOutputStream.close();
+        os.close();
+    }
+
     // Resetting fields to empty
     private void NewCustomer() {
         coveredRisksList.clear();
@@ -804,6 +855,86 @@ public class MainScreen extends JFrame {
         vDamageCHKBX.setEnabled(true);
         assistCHKBX.setEnabled(true);
         obligatoryCHKBX.setEnabled(true);
+    }
+
+    private void SearchCustomerByMobileNB() {
+        File file = new File(filePath.toUri());
+
+        try {
+            InputStream inputStream = new FileInputStream(file);
+            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+            TreeMap<Integer, Customer> mapInFile =(TreeMap<Integer, Customer>) objectInputStream.readObject();
+            objectInputStream.close();
+            inputStream.close();
+
+            Customer c_finded = mapInFile.get(Integer.parseInt(searchTXT.getText()));
+            customerTXT.setText(c_finded.toString());
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean Check
+
+    private Customer claimSearchCustomerByMobileNb() {
+        Customer customer = new Customer();
+        File file = new File(filePath.toUri());
+
+        try {
+            InputStream inputStream = new FileInputStream(file);
+            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+
+            TreeMap<Integer, Customer> mapInFile = new TreeMap<>();
+            objectInputStream.close();
+            inputStream.close();
+
+            customer = mapInFile.get(Integer.parseInt(claimingCustomerField.getText()));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return  customer;
+    }
+
+    private boolean checkPolicyValidity(LocalDate v_validityOfPolicy) {
+        LocalDate now = LocalDate.now();
+        if (now.isBefore(v_validityOfPolicy)) {
+            cond3 = true;
+            return true;
+        } else {
+            cond3 = false;
+            return false;
+        }
+    }
+
+    private boolean claimIsValid() {
+        if (cond1 && cond2 && cond3) {
+            claimStatusLBL2.setText("Claiming Status: You can register the Claim");
+            return true;
+        } else {
+            claimStatusLBL2.setText("Claiming Status: Not Able To Register the Claim");
+            return false;
+        }
+    }
+
+    private void displayPaymentOfPolicy() {
+        for (int i =0; i < premiumRisksList.size(); i++) {
+            totalPremium += premiumRisksList.get(i);
+            totalCoverage += coverageRisksList.get(i);
+            totalCeiling += ceilingRiskList.get(i);
+        }
+
+        settlementArea.setText("Total Premium: " +
+                totalPremium * Integer.parseInt(estimated.getText()) + " $\n" +
+                "Total Coverage: " +
+                totalCoverage + totalCoverage*Integer.parseInt(estimated.getText())*10 + " $\n" +
+                "Max Ceiling: " + totalCeiling.*Integer.parseInt(estimated.getText())) + 100000 + " $\n";
     }
 
     public static void main(String[] args) {
