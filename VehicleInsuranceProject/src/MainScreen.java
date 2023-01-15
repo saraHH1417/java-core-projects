@@ -879,8 +879,6 @@ public class MainScreen extends JFrame {
         }
     }
 
-    private boolean Check
-
     private Customer claimSearchCustomerByMobileNb() {
         Customer customer = new Customer();
         File file = new File(filePath.toUri());
@@ -934,7 +932,7 @@ public class MainScreen extends JFrame {
                 totalPremium * Integer.parseInt(estimated.getText()) + " $\n" +
                 "Total Coverage: " +
                 totalCoverage + totalCoverage*Integer.parseInt(estimated.getText())*10 + " $\n" +
-                "Max Ceiling: " + totalCeiling.*Integer.parseInt(estimated.getText())) + 100000 + " $\n";
+                "Max Ceiling: " + totalCeiling*Integer.parseInt(estimated.getText()) + 100000 + " $\n");
     }
 
     public static void main(String[] args) {
